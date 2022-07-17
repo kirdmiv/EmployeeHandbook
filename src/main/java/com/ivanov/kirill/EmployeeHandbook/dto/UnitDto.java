@@ -8,7 +8,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
-public abstract class UnitDto implements Serializable {
+public class UnitDto implements Serializable {
     protected Long id;
     protected String title;
     protected String description;
