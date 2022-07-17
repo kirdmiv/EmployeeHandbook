@@ -58,4 +58,13 @@ public class EmployeeController {
     ) {
         employeeService.deleteEmployee(id);
     }
+
+    @PostMapping("/add")
+    public void addEmployee(
+            @RequestParam(required = false, name = "unitId") Long unitId,
+            @RequestBody EmployeeDto employeeRequest
+    ) {
+        Employee employee = modelMapper.map(employeeRequest, Employee.class);
+        employeeService.addEmployee(employee, unitId);
+    }
 }

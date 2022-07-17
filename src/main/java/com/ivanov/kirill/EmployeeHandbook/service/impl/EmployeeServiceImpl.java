@@ -2,6 +2,7 @@ package com.ivanov.kirill.EmployeeHandbook.service.impl;
 
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
 import com.ivanov.kirill.EmployeeHandbook.repository.EmployeeRepository;
+import com.ivanov.kirill.EmployeeHandbook.repository.UnitRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,11 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final UnitRepository unitRepository;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, UnitRepository unitRepository) {
         this.employeeRepository = employeeRepository;
+        this.unitRepository = unitRepository;
     }
 
     @Override
@@ -34,7 +37,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee addEmployee(Employee employee) {
+    public Employee addEmployee(Employee employee, Long unitId) {
+        if (unitId != null)
+            employee.setWorkplace(unitRepository.findById(unitId).orElse(null));
         return employeeRepository.save(employee);
     }
 
