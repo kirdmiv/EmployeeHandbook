@@ -2,7 +2,7 @@ package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.EmployeeDto;
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
-import com.ivanov.kirill.EmployeeHandbook.repository.EmployeeRepository;
+import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class EmployeeController {
 
     @Autowired
-    private EmployeeRepository employeeRepository;
+    private EmployeeService employeeService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -35,20 +35,20 @@ public class EmployeeController {
                 modelMapper.map(new EmployeeDto(null, name, surname, email, null, null), Employee.class),
                 employeeMatcher
         );
-        return employeeRepository
-                .findAll(query)
+        return employeeService
+                .getMatchingEmployees(query)
                 .stream()
                 .map(employee -> modelMapper.map(employee, EmployeeDto.class))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/findById")
+    @GetMapping("/{id}")
     @ResponseBody
     public Optional<EmployeeDto> findEmployeeById(
-            @RequestParam Long id
+            @PathVariable Long id
     ) {
-        return employeeRepository
-                .findById(id)
+        return employeeService
+                .getEmployeeById(id)
                 .map(employee -> modelMapper.map(employee, EmployeeDto.class));
     }
 
@@ -56,6 +56,6 @@ public class EmployeeController {
     public void deleteEmployeeById(
             @RequestParam Long id
     ) {
-        employeeRepository.deleteById(id);
+        employeeService.deleteEmployee(id);
     }
 }
