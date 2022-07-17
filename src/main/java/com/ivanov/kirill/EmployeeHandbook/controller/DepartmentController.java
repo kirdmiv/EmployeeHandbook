@@ -49,4 +49,11 @@ public class DepartmentController {
                 .findById(id)
                 .map(department -> modelMapper.map(department, DepartmentDto.class));
     }
+
+    @PostMapping("/delete")
+    public void deleteDepartmentById(
+            @RequestParam Long id
+    ) {
+        departmentRepository.deleteById(id);
+    }
 }

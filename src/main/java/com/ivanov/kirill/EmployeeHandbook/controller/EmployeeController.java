@@ -51,4 +51,11 @@ public class EmployeeController {
                 .findById(id)
                 .map(employee -> modelMapper.map(employee, EmployeeDto.class));
     }
+
+    @PostMapping("/delete")
+    public void deleteEmployeeById(
+            @RequestParam Long id
+    ) {
+        employeeRepository.deleteById(id);
+    }
 }

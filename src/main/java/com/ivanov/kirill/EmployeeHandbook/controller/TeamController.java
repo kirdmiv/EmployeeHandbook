@@ -49,4 +49,11 @@ public class TeamController {
                 .findById(id)
                 .map(team -> modelMapper.map(team, TeamDto.class));
     }
+
+    @PostMapping("/delete")
+    public void deleteTeamById(
+            @RequestParam Long id
+    ) {
+        teamRepository.deleteById(id);
+    }
 }

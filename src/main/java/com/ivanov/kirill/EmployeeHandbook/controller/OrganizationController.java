@@ -50,4 +50,11 @@ public class OrganizationController {
                 .findById(id)
                 .map(organization -> modelMapper.map(organization, OrganizationDto.class));
     }
+
+    @PostMapping("/delete")
+    public void deleteOrganizationById(
+            @RequestParam Long id
+    ) {
+        organizationRepository.deleteById(id);
+    }
 }
