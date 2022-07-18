@@ -1,6 +1,7 @@
 package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.DepartmentDto;
+import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Department;
 import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,9 @@ public class DepartmentController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/find")
     @ResponseBody
@@ -59,8 +63,14 @@ public class DepartmentController {
     public ResponseEntity<String> deleteDepartmentById(
             @RequestParam Long id
     ) {
-        if (departmentService.deleteDepartment(id))
+        if (departmentService.deleteDepartment(id)) {
+            emailService.sendMailMessage(
+                    "kirdmiv@gmail.com",
+                    "Department deleted",
+                    "Department with id=" + id + " has been deleted successfully."
+            );
             return ResponseEntity.ok("Successful");
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
     }
 
@@ -70,9 +80,16 @@ public class DepartmentController {
     ) {
         Department department = modelMapper.map(departmentRequest, Department.class);
         Optional<Department> addedDepartment = departmentService.addDepartment(department);
-        return addedDepartment.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, DepartmentDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (addedDepartment.isPresent()) {
+            DepartmentDto addedDepartmentDto = modelMapper.map(addedDepartment.get(), DepartmentDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Department added",
+                    addedDepartmentDto
+            );
+            return ResponseEntity.ok(addedDepartmentDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/update/{id}")
@@ -82,8 +99,15 @@ public class DepartmentController {
     ) {
         Department department = modelMapper.map(departmentRequest, Department.class);
         Optional<Department> updatedDepartment = departmentService.updateDepartment(id, department);
-        return updatedDepartment.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, DepartmentDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (updatedDepartment.isPresent()) {
+            DepartmentDto updatedDepartmentDto = modelMapper.map(updatedDepartment.get(), DepartmentDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Department updated",
+                    updatedDepartmentDto
+            );
+            return ResponseEntity.ok(updatedDepartmentDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

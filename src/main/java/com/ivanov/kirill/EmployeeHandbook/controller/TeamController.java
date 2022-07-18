@@ -1,6 +1,7 @@
 package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.TeamDto;
+import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Team;
 import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,9 @@ public class TeamController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/find")
     @ResponseBody
@@ -59,8 +63,14 @@ public class TeamController {
     public ResponseEntity<String> deleteTeamById(
             @RequestParam Long id
     ) {
-        if (teamService.deleteTeam(id))
+        if (teamService.deleteTeam(id)) {
+            emailService.sendMailMessage(
+                    "kirdmiv@gmail.com",
+                    "Team deleted",
+                    "Team with id=" + id + " has been deleted successfully."
+            );
             return ResponseEntity.ok("Successful");
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
     }
 
@@ -70,9 +80,16 @@ public class TeamController {
     ) {
         Team team = modelMapper.map(teamRequest, Team.class);
         Optional<Team> addedTeam = teamService.addTeam(team);
-        return addedTeam.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, TeamDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (addedTeam.isPresent()) {
+            TeamDto addedTeamDto = modelMapper.map(addedTeam.get(), TeamDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Team added",
+                    addedTeamDto
+            );
+            return ResponseEntity.ok(addedTeamDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/update/{id}")
@@ -82,8 +99,15 @@ public class TeamController {
     ) {
         Team team = modelMapper.map(teamRequest, Team.class);
         Optional<Team> updatedTeam = teamService.updateTeam(id, team);
-        return updatedTeam.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, TeamDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (updatedTeam.isPresent()) {
+            TeamDto updatedTeamDto = modelMapper.map(updatedTeam.get(), TeamDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Team updated",
+                    updatedTeamDto
+            );
+            return ResponseEntity.ok(updatedTeamDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

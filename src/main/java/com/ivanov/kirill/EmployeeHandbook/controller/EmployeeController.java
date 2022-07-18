@@ -1,6 +1,7 @@
 package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.EmployeeDto;
+import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
 import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
 import org.modelmapper.ModelMapper;
@@ -23,6 +24,9 @@ public class EmployeeController {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/find")
     @ResponseBody
@@ -61,8 +65,14 @@ public class EmployeeController {
     public ResponseEntity<String> deleteEmployeeById(
             @RequestParam Long id
     ) {
-        if (employeeService.deleteEmployee(id))
+        if (employeeService.deleteEmployee(id)) {
+            emailService.sendMailMessage(
+                    "kirdmiv@gmail.com",
+                    "Employee deleted",
+                    "Employee with id=" + id + " has been deleted successfully."
+            );
             return ResponseEntity.ok("Successful");
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
     }
 
@@ -73,9 +83,16 @@ public class EmployeeController {
     ) {
         Employee employee = modelMapper.map(employeeRequest, Employee.class);
         Optional<Employee> addedEmployee = employeeService.addEmployee(employee, unitId);
-        return addedEmployee.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, EmployeeDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (addedEmployee.isPresent()) {
+            EmployeeDto addedEmployeeDto = modelMapper.map(addedEmployee.get(), EmployeeDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Employee added",
+                    addedEmployeeDto
+            );
+            return ResponseEntity.ok(addedEmployeeDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/update/{id}")
@@ -86,8 +103,15 @@ public class EmployeeController {
     ) {
         Employee employee = modelMapper.map(employeeRequest, Employee.class);
         Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employee, unitId);
-        return updatedEmployee.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, EmployeeDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (updatedEmployee.isPresent()) {
+            EmployeeDto updatedEmployeeDto = modelMapper.map(updatedEmployee.get(), EmployeeDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Employee updated",
+                    updatedEmployeeDto
+            );
+            return ResponseEntity.ok(updatedEmployeeDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

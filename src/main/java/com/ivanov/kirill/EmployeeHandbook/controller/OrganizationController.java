@@ -1,6 +1,7 @@
 package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.OrganizationDto;
+import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Organization;
 import com.ivanov.kirill.EmployeeHandbook.service.OrganizationService;
 import org.modelmapper.ModelMapper;
@@ -24,6 +25,9 @@ public class OrganizationController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private EmailService emailService;
+    
     @GetMapping("/find")
     @ResponseBody
     public List<OrganizationDto> organizations(
@@ -59,8 +63,14 @@ public class OrganizationController {
     public ResponseEntity<String> deleteOrganizationById(
             @RequestParam Long id
     ) {
-        if (organizationService.deleteOrganization(id))
+        if (organizationService.deleteOrganization(id)) {
+            emailService.sendMailMessage(
+                    "kirdmiv@gmail.com",
+                    "Organization deleted",
+                    "Organization with id=" + id + " has been deleted successfully."
+            );
             return ResponseEntity.ok("Successful");
+        }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
     }
 
@@ -70,9 +80,16 @@ public class OrganizationController {
     ) {
         Organization organization = modelMapper.map(organizationRequest, Organization.class);
         Optional<Organization> addedOrganization = organizationService.addOrganization(organization);
-        return addedOrganization.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, OrganizationDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (addedOrganization.isPresent()) {
+            OrganizationDto addedOrganizationDto = modelMapper.map(addedOrganization.get(), OrganizationDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Organization added",
+                    addedOrganizationDto
+            );
+            return ResponseEntity.ok(addedOrganizationDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/update/{id}")
@@ -82,8 +99,15 @@ public class OrganizationController {
     ) {
         Organization organization = modelMapper.map(organizationRequest, Organization.class);
         Optional<Organization> updatedOrganization = organizationService.updateOrganization(id, organization);
-        return updatedOrganization.map(
-                value -> ResponseEntity.ok(modelMapper.map(value, OrganizationDto.class))
-        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
+        if (updatedOrganization.isPresent()) {
+            OrganizationDto updatedOrganizationDto = modelMapper.map(updatedOrganization.get(), OrganizationDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Organization updated",
+                    updatedOrganizationDto
+            );
+            return ResponseEntity.ok(updatedOrganizationDto);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }
