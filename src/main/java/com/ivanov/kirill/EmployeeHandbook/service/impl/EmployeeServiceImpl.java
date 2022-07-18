@@ -1,9 +1,12 @@
 package com.ivanov.kirill.EmployeeHandbook.service.impl;
 
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
+import com.ivanov.kirill.EmployeeHandbook.model.Unit;
 import com.ivanov.kirill.EmployeeHandbook.repository.EmployeeRepository;
 import com.ivanov.kirill.EmployeeHandbook.repository.UnitRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +16,11 @@ import java.util.Optional;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final EmployeeRepository employeeRepository;
-    private final UnitRepository unitRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private UnitRepository unitRepository;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, UnitRepository unitRepository) {
-        this.employeeRepository = employeeRepository;
-        this.unitRepository = unitRepository;
-    }
 
     @Override
     public List<Employee> getMatchingEmployees(Example<Employee> employeeExample) {
@@ -27,24 +28,40 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Optional<Employee> getEmployeeById(long id) {
+    public Optional<Employee> getEmployeeById(Long id) {
         return employeeRepository.findById(id);
     }
 
     @Override
-    public void deleteEmployee(long id) {
-        employeeRepository.deleteById(id);
+    public Boolean deleteEmployee(Long id) {
+        try {
+            employeeRepository.deleteById(id);
+            return true;
+        } catch (DataAccessException exception) {
+            return false;
+        }
     }
 
     @Override
-    public Employee addEmployee(Employee employee, Long unitId) {
-        if (unitId != null)
-            employee.setWorkplace(unitRepository.findById(unitId).orElse(null));
-        return employeeRepository.save(employee);
+    public Optional<Employee> addEmployee(Employee employee, Long unitId) {
+        if (unitId != null) {
+            Optional<Unit> workplace = unitRepository.findById(unitId);
+            if (workplace.isPresent())
+                employee.setWorkplace(workplace.get());
+            else
+                return Optional.empty();
+        }
+        return Optional.of(employeeRepository.save(employee));
     }
 
     @Override
-    public Employee updateEmployee(long id, Employee employee) {
-        return null;
+    public Optional<Employee> updateEmployee(Long id, Employee employee, Long unitId) {
+        Optional<Employee> employeeFromDB = employeeRepository.findById(id);
+        if (!employeeFromDB.isPresent())
+            return Optional.empty();
+
+        employee.setId(employeeFromDB.get().getId());
+
+        return Optional.of(employeeRepository.save(employee));
     }
 }

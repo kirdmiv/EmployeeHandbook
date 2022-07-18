@@ -7,6 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,18 +55,36 @@ public class EmployeeController {
     }
 
     @PostMapping("/delete")
-    public void deleteEmployeeById(
+    public ResponseEntity<String> deleteEmployeeById(
             @RequestParam Long id
     ) {
-        employeeService.deleteEmployee(id);
+        if (employeeService.deleteEmployee(id))
+            return ResponseEntity.ok("Successful");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
     }
 
     @PostMapping("/add")
-    public void addEmployee(
-            @RequestParam(required = false, name = "unitId") Long unitId,
+    public ResponseEntity<EmployeeDto> addEmployee(
+            @RequestParam(required = false) Long unitId,
             @RequestBody EmployeeDto employeeRequest
     ) {
         Employee employee = modelMapper.map(employeeRequest, Employee.class);
-        employeeService.addEmployee(employee, unitId);
+        Optional<Employee> addedEmployee = employeeService.addEmployee(employee, unitId);
+        if (addedEmployee.isPresent())
+            return ResponseEntity.ok(modelMapper.map(addedEmployee.get(), EmployeeDto.class));
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<EmployeeDto> updateEmployee(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long unitId,
+            @RequestBody EmployeeDto employeeRequest
+    ) {
+        Employee employee = modelMapper.map(employeeRequest, Employee.class);
+        Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employee, unitId);
+        if (updatedEmployee.isPresent())
+            return ResponseEntity.ok(modelMapper.map(updatedEmployee.get(), EmployeeDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 }

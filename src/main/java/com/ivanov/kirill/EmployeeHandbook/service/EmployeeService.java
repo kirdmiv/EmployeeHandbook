@@ -9,11 +9,11 @@ import java.util.Optional;
 public interface EmployeeService {
     List<Employee> getMatchingEmployees(Example<Employee> employeeExample);
 
-    Optional<Employee> getEmployeeById(long id);
+    Optional<Employee> getEmployeeById(Long id);
 
-    void deleteEmployee(long id);
+    Boolean deleteEmployee(Long id);
 
-    Employee addEmployee(Employee employee, Long organizationId);
+    Optional<Employee> addEmployee(Employee employee, Long organizationId);
 
-    Employee updateEmployee(long id, Employee employee);
+    Optional<Employee> updateEmployee(Long id, Employee employee, Long unitId);
 }
