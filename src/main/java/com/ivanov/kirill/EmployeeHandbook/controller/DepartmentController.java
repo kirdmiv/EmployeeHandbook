@@ -2,11 +2,13 @@ package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.DepartmentDto;
 import com.ivanov.kirill.EmployeeHandbook.model.Department;
-import com.ivanov.kirill.EmployeeHandbook.repository.DepartmentRepository;
+import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 public class DepartmentController {
 
     @Autowired
-    private DepartmentRepository departmentRepository;
+    private DepartmentService departmentService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -33,27 +35,52 @@ public class DepartmentController {
                 modelMapper.map(new DepartmentDto(null, title, null, null, null, null), Department.class),
                 departmentMatcher
         );
-        return departmentRepository
-                .findAll(query)
+        return departmentService
+                .getMatchingDepartments(query)
                 .stream()
                 .map(department -> modelMapper.map(department, DepartmentDto.class))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/findById")
-    @ResponseBody
-    public Optional<DepartmentDto> findDepartmentById(
-            @RequestParam Long id
+    @GetMapping("/{id}")
+    public ResponseEntity<DepartmentDto> findDepartmentById(
+            @PathVariable Long id
     ) {
-        return departmentRepository
-                .findById(id)
-                .map(department -> modelMapper.map(department, DepartmentDto.class));
+        Optional<Department> department = departmentService.getDepartmentById(id);
+        if (department.isPresent())
+            return ResponseEntity.ok(modelMapper.map(department.get(), DepartmentDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/delete")
-    public void deleteDepartmentById(
+    public ResponseEntity<String> deleteDepartmentById(
             @RequestParam Long id
     ) {
-        departmentRepository.deleteById(id);
+        if (departmentService.deleteDepartment(id))
+            return ResponseEntity.ok("Successful");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<DepartmentDto> addDepartment(
+            @RequestBody DepartmentDto departmentRequest
+    ) {
+        Department department = modelMapper.map(departmentRequest, Department.class);
+        Optional<Department> addedDepartment = departmentService.addDepartment(department);
+        if (addedDepartment.isPresent())
+            return ResponseEntity.ok(modelMapper.map(addedDepartment.get(), DepartmentDto.class));
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<DepartmentDto> updateDepartment(
+            @PathVariable Long id,
+            @RequestBody DepartmentDto departmentRequest
+    ) {
+        Department department = modelMapper.map(departmentRequest, Department.class);
+        Optional<Department> updatedDepartment = departmentService.updateDepartment(id, department);
+        if (updatedDepartment.isPresent())
+            return ResponseEntity.ok(modelMapper.map(updatedDepartment.get(), DepartmentDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 }

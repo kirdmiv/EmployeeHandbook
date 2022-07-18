@@ -2,11 +2,13 @@ package com.ivanov.kirill.EmployeeHandbook.controller;
 
 import com.ivanov.kirill.EmployeeHandbook.dto.TeamDto;
 import com.ivanov.kirill.EmployeeHandbook.model.Team;
-import com.ivanov.kirill.EmployeeHandbook.repository.TeamRepository;
+import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 public class TeamController {
 
     @Autowired
-    private TeamRepository teamRepository;
+    private TeamService teamService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -33,27 +35,52 @@ public class TeamController {
                 modelMapper.map(new TeamDto(null, title, null, null, null, null), Team.class),
                 teamMatcher
         );
-        return teamRepository
-                .findAll(query)
+        return teamService
+                .getMatchingTeams(query)
                 .stream()
                 .map(team -> modelMapper.map(team, TeamDto.class))
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/findById")
-    @ResponseBody
-    public Optional<TeamDto> findTeamById(
-            @RequestParam Long id
+    @GetMapping("/{id}")
+    public ResponseEntity<TeamDto> findTeamById(
+            @PathVariable Long id
     ) {
-        return teamRepository
-                .findById(id)
-                .map(team -> modelMapper.map(team, TeamDto.class));
+        Optional<Team> team = teamService.getTeamById(id);
+        if (team.isPresent())
+            return ResponseEntity.ok(modelMapper.map(team.get(), TeamDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/delete")
-    public void deleteTeamById(
+    public ResponseEntity<String> deleteTeamById(
             @RequestParam Long id
     ) {
-        teamRepository.deleteById(id);
+        if (teamService.deleteTeam(id))
+            return ResponseEntity.ok("Successful");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<TeamDto> addTeam(
+            @RequestBody TeamDto teamRequest
+    ) {
+        Team team = modelMapper.map(teamRequest, Team.class);
+        Optional<Team> addedTeam = teamService.addTeam(team);
+        if (addedTeam.isPresent())
+            return ResponseEntity.ok(modelMapper.map(addedTeam.get(), TeamDto.class));
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<TeamDto> updateTeam(
+            @PathVariable Long id,
+            @RequestBody TeamDto teamRequest
+    ) {
+        Team team = modelMapper.map(teamRequest, Team.class);
+        Optional<Team> updatedTeam = teamService.updateTeam(id, team);
+        if (updatedTeam.isPresent())
+            return ResponseEntity.ok(modelMapper.map(updatedTeam.get(), TeamDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 }
