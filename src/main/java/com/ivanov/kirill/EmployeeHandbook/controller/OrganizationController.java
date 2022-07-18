@@ -47,9 +47,9 @@ public class OrganizationController {
             @PathVariable Long id
     ) {
         Optional<Organization> organization = organizationService.getOrganizationById(id);
-        if (organization.isPresent())
-            return ResponseEntity.ok(modelMapper.map(organization.get(), OrganizationDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return organization.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, OrganizationDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/delete")
@@ -67,9 +67,9 @@ public class OrganizationController {
     ) {
         Organization organization = modelMapper.map(organizationRequest, Organization.class);
         Optional<Organization> addedOrganization = organizationService.addOrganization(organization);
-        if (addedOrganization.isPresent())
-            return ResponseEntity.ok(modelMapper.map(addedOrganization.get(), OrganizationDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return addedOrganization.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, OrganizationDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/update/{id}")
@@ -79,8 +79,8 @@ public class OrganizationController {
     ) {
         Organization organization = modelMapper.map(organizationRequest, Organization.class);
         Optional<Organization> updatedOrganization = organizationService.updateOrganization(id, organization);
-        if (updatedOrganization.isPresent())
-            return ResponseEntity.ok(modelMapper.map(updatedOrganization.get(), OrganizationDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return updatedOrganization.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, OrganizationDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 }

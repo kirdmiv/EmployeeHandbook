@@ -3,7 +3,6 @@ package com.ivanov.kirill.EmployeeHandbook.service.impl;
 import com.ivanov.kirill.EmployeeHandbook.model.Department;
 import com.ivanov.kirill.EmployeeHandbook.repository.DepartmentRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
@@ -16,9 +15,6 @@ import java.util.Optional;
 public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     private DepartmentRepository departmentRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public List<Department> getMatchingDepartments(Example<Department> departmentExample) {

@@ -3,7 +3,6 @@ package com.ivanov.kirill.EmployeeHandbook.service.impl;
 import com.ivanov.kirill.EmployeeHandbook.model.Organization;
 import com.ivanov.kirill.EmployeeHandbook.repository.OrganizationRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.OrganizationService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
@@ -16,9 +15,6 @@ import java.util.Optional;
 public class OrganizationServiceImpl implements OrganizationService {
     @Autowired
     private OrganizationRepository organizationRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public List<Organization> getMatchingOrganizations(Example<Organization> organizationExample) {

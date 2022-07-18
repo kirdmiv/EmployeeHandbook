@@ -47,9 +47,9 @@ public class TeamController {
             @PathVariable Long id
     ) {
         Optional<Team> team = teamService.getTeamById(id);
-        if (team.isPresent())
-            return ResponseEntity.ok(modelMapper.map(team.get(), TeamDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return team.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, TeamDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/delete")
@@ -67,9 +67,9 @@ public class TeamController {
     ) {
         Team team = modelMapper.map(teamRequest, Team.class);
         Optional<Team> addedTeam = teamService.addTeam(team);
-        if (addedTeam.isPresent())
-            return ResponseEntity.ok(modelMapper.map(addedTeam.get(), TeamDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return addedTeam.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, TeamDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/update/{id}")
@@ -79,8 +79,8 @@ public class TeamController {
     ) {
         Team team = modelMapper.map(teamRequest, Team.class);
         Optional<Team> updatedTeam = teamService.updateTeam(id, team);
-        if (updatedTeam.isPresent())
-            return ResponseEntity.ok(modelMapper.map(updatedTeam.get(), TeamDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return updatedTeam.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, TeamDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 }

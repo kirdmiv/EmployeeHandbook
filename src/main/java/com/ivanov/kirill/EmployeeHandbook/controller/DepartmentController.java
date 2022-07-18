@@ -47,9 +47,9 @@ public class DepartmentController {
             @PathVariable Long id
     ) {
         Optional<Department> department = departmentService.getDepartmentById(id);
-        if (department.isPresent())
-            return ResponseEntity.ok(modelMapper.map(department.get(), DepartmentDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return department.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, DepartmentDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/delete")
@@ -67,9 +67,9 @@ public class DepartmentController {
     ) {
         Department department = modelMapper.map(departmentRequest, Department.class);
         Optional<Department> addedDepartment = departmentService.addDepartment(department);
-        if (addedDepartment.isPresent())
-            return ResponseEntity.ok(modelMapper.map(addedDepartment.get(), DepartmentDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return addedDepartment.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, DepartmentDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/update/{id}")
@@ -79,8 +79,8 @@ public class DepartmentController {
     ) {
         Department department = modelMapper.map(departmentRequest, Department.class);
         Optional<Department> updatedDepartment = departmentService.updateDepartment(id, department);
-        if (updatedDepartment.isPresent())
-            return ResponseEntity.ok(modelMapper.map(updatedDepartment.get(), DepartmentDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return updatedDepartment.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, DepartmentDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 }

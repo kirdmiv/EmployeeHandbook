@@ -49,9 +49,9 @@ public class EmployeeController {
             @PathVariable Long id
     ) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
-        if (employee.isPresent())
-            return ResponseEntity.ok(modelMapper.map(employee.get(), EmployeeDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return employee.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, EmployeeDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/delete")
@@ -70,9 +70,9 @@ public class EmployeeController {
     ) {
         Employee employee = modelMapper.map(employeeRequest, Employee.class);
         Optional<Employee> addedEmployee = employeeService.addEmployee(employee, unitId);
-        if (addedEmployee.isPresent())
-            return ResponseEntity.ok(modelMapper.map(addedEmployee.get(), EmployeeDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return addedEmployee.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, EmployeeDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 
     @PostMapping("/update/{id}")
@@ -83,8 +83,8 @@ public class EmployeeController {
     ) {
         Employee employee = modelMapper.map(employeeRequest, Employee.class);
         Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employee, unitId);
-        if (updatedEmployee.isPresent())
-            return ResponseEntity.ok(modelMapper.map(updatedEmployee.get(), EmployeeDto.class));
-        return ResponseEntity.badRequest().body(null);
+        return updatedEmployee.map(
+                value -> ResponseEntity.ok(modelMapper.map(value, EmployeeDto.class))
+        ).orElseGet(() -> ResponseEntity.badRequest().body(null));
     }
 }

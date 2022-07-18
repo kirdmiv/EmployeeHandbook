@@ -3,7 +3,6 @@ package com.ivanov.kirill.EmployeeHandbook.service.impl;
 import com.ivanov.kirill.EmployeeHandbook.model.Team;
 import com.ivanov.kirill.EmployeeHandbook.repository.TeamRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
@@ -16,9 +15,6 @@ import java.util.Optional;
 public class TeamServiceImpl implements TeamService {
     @Autowired
     private TeamRepository teamRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public List<Team> getMatchingTeams(Example<Team> teamExample) {

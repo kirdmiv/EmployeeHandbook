@@ -1,5 +1,6 @@
 package com.ivanov.kirill.EmployeeHandbook.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.io.Serializable;
@@ -15,5 +16,6 @@ public class EmployeeDto implements Serializable {
     private String surname;
     private String email;
     private Date birthday;
+    @JsonIgnore
     private UnitDto workplace;
 }
