@@ -45,13 +45,13 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    @ResponseBody
-    public Optional<EmployeeDto> findEmployeeById(
+    public ResponseEntity<EmployeeDto> findEmployeeById(
             @PathVariable Long id
     ) {
-        return employeeService
-                .getEmployeeById(id)
-                .map(employee -> modelMapper.map(employee, EmployeeDto.class));
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent())
+            return ResponseEntity.ok(modelMapper.map(employee.get(), EmployeeDto.class));
+        return ResponseEntity.badRequest().body(null);
     }
 
     @PostMapping("/delete")
