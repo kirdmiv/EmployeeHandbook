@@ -6,6 +6,7 @@ import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class DepartmentServiceImpl implements DepartmentService {
     private DepartmentRepository departmentRepository;
 
     @Override
-    public List<Department> getMatchingDepartments(Example<Department> departmentExample) {
-        return departmentRepository.findAll(departmentExample);
+    public List<Department> getMatchingDepartments(Example<Department> departmentExample, Pageable rules) {
+        return departmentRepository.findAll(departmentExample, rules).toList();
     }
 
     @Override

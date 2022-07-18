@@ -5,8 +5,7 @@ import com.ivanov.kirill.EmployeeHandbook.model.Employee;
 import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,15 +29,19 @@ public class EmployeeController {
     public List<EmployeeDto> employees(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String surname,
-            @RequestParam(required = false) String email
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false, defaultValue = "0", name = "pgNum") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "100", name = "pgSize") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "name", name = "sort") String sortByField
     ) {
         ExampleMatcher employeeMatcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnorePaths("id");
         Example<Employee> query = Example.of(
                 modelMapper.map(new EmployeeDto(null, name, surname, email, null, null), Employee.class),
                 employeeMatcher
         );
+        Pageable rules = PageRequest.of(pageNumber, pageSize, Sort.by(sortByField));
         return employeeService
-                .getMatchingEmployees(query)
+                .getMatchingEmployees(query, rules)
                 .stream()
                 .map(employee -> modelMapper.map(employee, EmployeeDto.class))
                 .collect(Collectors.toList());

@@ -5,8 +5,7 @@ import com.ivanov.kirill.EmployeeHandbook.model.Organization;
 import com.ivanov.kirill.EmployeeHandbook.service.OrganizationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +27,19 @@ public class OrganizationController {
     @GetMapping("/find")
     @ResponseBody
     public List<OrganizationDto> organizations(
-            @RequestParam(required = false) String title
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false, defaultValue = "0", name = "pgNum") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "100", name = "pgSize") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "title", name = "sort") String sortByField
     ) {
         ExampleMatcher organizationMatcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnorePaths("id");
         Example<Organization> query = Example.of(
                 modelMapper.map(new OrganizationDto(null, title, null, null, null, null), Organization.class),
                 organizationMatcher
         );
+        Pageable rules = PageRequest.of(pageNumber, pageSize, Sort.by(sortByField));
         return organizationService
-                .getMatchingOrganizations(query)
+                .getMatchingOrganizations(query, rules)
                 .stream()
                 .map(organization -> modelMapper.map(organization, OrganizationDto.class))
                 .collect(Collectors.toList());

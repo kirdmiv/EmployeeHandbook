@@ -6,6 +6,7 @@ import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class TeamServiceImpl implements TeamService {
     private TeamRepository teamRepository;
 
     @Override
-    public List<Team> getMatchingTeams(Example<Team> teamExample) {
-        return teamRepository.findAll(teamExample);
+    public List<Team> getMatchingTeams(Example<Team> teamExample, Pageable rules) {
+        return teamRepository.findAll(teamExample, rules).toList();
     }
 
     @Override

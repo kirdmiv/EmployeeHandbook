@@ -8,6 +8,7 @@ import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,8 +24,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
     @Override
-    public List<Employee> getMatchingEmployees(Example<Employee> employeeExample) {
-        return employeeRepository.findAll(employeeExample);
+    public List<Employee> getMatchingEmployees(Example<Employee> employeeExample, Pageable rules) {
+        return employeeRepository.findAll(employeeExample, rules).toList();
     }
 
     @Override

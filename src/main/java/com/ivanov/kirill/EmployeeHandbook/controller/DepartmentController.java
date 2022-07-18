@@ -5,8 +5,7 @@ import com.ivanov.kirill.EmployeeHandbook.model.Department;
 import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +27,19 @@ public class DepartmentController {
     @GetMapping("/find")
     @ResponseBody
     public List<DepartmentDto> departments(
-            @RequestParam(required = false) String title
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false, defaultValue = "0", name = "pgNum") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "100", name = "pgSize") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "title", name = "sort") String sortByField
     ) {
         ExampleMatcher departmentMatcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnorePaths("id");
         Example<Department> query = Example.of(
                 modelMapper.map(new DepartmentDto(null, title, null, null, null, null), Department.class),
                 departmentMatcher
         );
+        Pageable rules = PageRequest.of(pageNumber, pageSize, Sort.by(sortByField));
         return departmentService
-                .getMatchingDepartments(query)
+                .getMatchingDepartments(query, rules)
                 .stream()
                 .map(department -> modelMapper.map(department, DepartmentDto.class))
                 .collect(Collectors.toList());

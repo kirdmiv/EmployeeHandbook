@@ -5,8 +5,7 @@ import com.ivanov.kirill.EmployeeHandbook.model.Team;
 import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,15 +27,19 @@ public class TeamController {
     @GetMapping("/find")
     @ResponseBody
     public List<TeamDto> teams(
-            @RequestParam(required = false) String title
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false, defaultValue = "0", name = "pgNum") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = "100", name = "pgSize") Integer pageSize,
+            @RequestParam(required = false, defaultValue = "title", name = "sort") String sortByField
     ) {
         ExampleMatcher teamMatcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnorePaths("id");
         Example<Team> query = Example.of(
                 modelMapper.map(new TeamDto(null, title, null, null, null, null), Team.class),
                 teamMatcher
         );
+        Pageable rules = PageRequest.of(pageNumber, pageSize, Sort.by(sortByField));
         return teamService
-                .getMatchingTeams(query)
+                .getMatchingTeams(query, rules)
                 .stream()
                 .map(team -> modelMapper.map(team, TeamDto.class))
                 .collect(Collectors.toList());

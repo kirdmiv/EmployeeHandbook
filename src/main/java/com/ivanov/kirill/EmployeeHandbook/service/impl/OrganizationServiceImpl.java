@@ -6,6 +6,7 @@ import com.ivanov.kirill.EmployeeHandbook.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     private OrganizationRepository organizationRepository;
 
     @Override
-    public List<Organization> getMatchingOrganizations(Example<Organization> organizationExample) {
-        return organizationRepository.findAll(organizationExample);
+    public List<Organization> getMatchingOrganizations(Example<Organization> organizationExample, Pageable rules) {
+        return organizationRepository.findAll(organizationExample, rules).toList();
     }
 
     @Override
