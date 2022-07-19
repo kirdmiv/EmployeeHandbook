@@ -101,8 +101,7 @@ public class DatabaseInitializer implements ApplicationRunner {
         }
         currentEmployee.setWorkplace(unitStack.peek());
 
-        //Optional<Employee> addedEmployee = employeeService.addEmployee(currentEmployee, null);
-        Optional<Employee> addedEmployee = Optional.of(currentEmployee);
+        Optional<Employee> addedEmployee = employeeService.addEmployee(currentEmployee, null);
         if (!addedEmployee.isPresent())
             throw new RuntimeException("Failed to add employee: " + currentEmployee.toString());
         if (unitStack.peek().getHead() == null)
@@ -114,12 +113,18 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void setUpTeam(String[] values) {
-        //flushTeam();
+        flushTeam();
         currentTeam = new Team();
         setUpUnit(currentTeam, values);
         currentTeam.setDepartment((Department) unitStack.peek());
         currentTeam.setEmployees(teamEmployees);
         unitStack.add(currentTeam);
+
+        Optional<Team> addedTeam = teamService.addTeam(currentTeam);
+        if (!addedTeam.isPresent())
+            throw new RuntimeException("Failed to add team: " + currentTeam.toString());
+
+        currentTeam = addedTeam.get();
     }
 
     private void flushTeam() {
@@ -127,16 +132,15 @@ public class DatabaseInitializer implements ApplicationRunner {
             return;
 
         currentTeam.setEmployees(teamEmployees);
-        Optional<Team> addedTeam = teamService.addTeam(currentTeam);
-        if (!addedTeam.isPresent())
-            throw new RuntimeException("Failed to add team: " + currentTeam.toString());
+        teamService.updateTeam(currentTeam.getId(), currentTeam);
 
-        Employee head = addedTeam.get().getHead();
-        head.setWorkplace(addedTeam.get());
+
+        Employee head = currentTeam.getHead();
+        head.setWorkplace(currentTeam);
         employeeService.updateEmployee(head.getId(), head, null);
 
-        addedTeam.get().getEmployees().forEach(employee -> {
-            employee.setWorkplace(addedTeam.get());
+        currentTeam.getEmployees().forEach(employee -> {
+            employee.setWorkplace(currentTeam);
             employeeService.updateEmployee(employee.getId(), employee, null);
         });
 
@@ -146,24 +150,27 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void setUpDepartment(String[] values) {
-        //flushDepartment();
+        flushDepartment();
         currentDepartment = new Department();
         setUpUnit(currentDepartment, values);
         currentDepartment.setOrganization((Organization) unitStack.peek());
-        currentDepartment.setTeams();
+        currentDepartment.setTeams(null);
         unitStack.add(currentDepartment);
+
+
+        Optional<Department> addedDepartment = departmentService.addDepartment(currentDepartment);
+        if (!addedDepartment.isPresent())
+            throw new RuntimeException("Failed to add department: " + currentDepartment.toString());
+
+        currentDepartment = addedDepartment.get();
     }
 
     private void flushDepartment() {
         if (currentDepartment == null)
             return;
 
-        Optional<Department> addedDepartment = departmentService.addDepartment(currentDepartment);
-        if (!addedDepartment.isPresent())
-            throw new RuntimeException("Failed to add department: " + currentDepartment.toString());
-
-        Employee head = addedDepartment.get().getHead();
-        head.setWorkplace(addedDepartment.get());
+        Employee head = currentDepartment.getHead();
+        head.setWorkplace(currentDepartment);
         employeeService.updateEmployee(head.getId(), head, null);
 
         unitStack.pop();
@@ -178,18 +185,20 @@ public class DatabaseInitializer implements ApplicationRunner {
         currentOrganization.setHeadQuarters(values[3]);
         currentOrganization.setDepartments(null);
         unitStack.add(currentOrganization);
+
+        Optional<Organization> addedOrganization = organizationService.addOrganization(currentOrganization);
+        if (!addedOrganization.isPresent())
+            throw new RuntimeException("Failed to add organization: " + currentOrganization.toString());
+
+        currentOrganization = addedOrganization.get();
     }
 
     private void flushOrganization() {
         if (currentOrganization == null)
             return;
 
-        Optional<Organization> addedOrganization = organizationService.addOrganization(currentOrganization);
-        if (!addedOrganization.isPresent())
-            throw new RuntimeException("Failed to add organization: " + currentOrganization.toString());
-
-        Employee head = addedOrganization.get().getHead();
-        head.setWorkplace(addedOrganization.get());
+        Employee head = currentOrganization.getHead();
+        head.setWorkplace(currentOrganization);
         employeeService.updateEmployee(head.getId(), head, null);
 
         unitStack.pop();
@@ -203,8 +212,8 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void flushData() {
-        //flushTeam();
-        //flushDepartment();
+        flushTeam();
+        flushDepartment();
         flushOrganization();
     }
 

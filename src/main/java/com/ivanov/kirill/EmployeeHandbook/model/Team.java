@@ -16,7 +16,7 @@ import java.util.List;
 @DiscriminatorValue("team")
 public class Team extends Unit {
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "workplace")
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Employee> employees;
 
     @ManyToOne
