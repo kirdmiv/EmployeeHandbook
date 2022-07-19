@@ -34,6 +34,8 @@ public class DatabaseInitializer implements ApplicationRunner {
     private Department currentDepartment = null;
     private Employee currentEmployee = null;
     private final List<Employee> teamEmployees = new ArrayList<>();
+    private final List<Department> currentDepartments = new ArrayList<>();
+    private final List<Team> currentTeams = new ArrayList<>();
     private final Stack<Unit> unitStack = new Stack<>();
 
     private final String ARG_NAME = "databaseInitializationFile";
@@ -132,8 +134,11 @@ public class DatabaseInitializer implements ApplicationRunner {
             return;
 
         currentTeam.setEmployees(teamEmployees);
-        teamService.updateTeam(currentTeam.getId(), currentTeam);
-
+        currentTeam = getFromOptional(
+                teamService.updateTeam(currentTeam.getId(), currentTeam),
+                "Failed to update team: " + currentTeam
+        );
+        currentTeams.add(currentTeam);
 
         Employee head = currentTeam.getHead();
         head.setWorkplace(currentTeam);
@@ -157,7 +162,6 @@ public class DatabaseInitializer implements ApplicationRunner {
         currentDepartment.setTeams(null);
         unitStack.add(currentDepartment);
 
-
         Optional<Department> addedDepartment = departmentService.addDepartment(currentDepartment);
         if (!addedDepartment.isPresent())
             throw new RuntimeException("Failed to add department: " + currentDepartment.toString());
@@ -169,10 +173,17 @@ public class DatabaseInitializer implements ApplicationRunner {
         if (currentDepartment == null)
             return;
 
+        currentDepartment.setTeams(currentTeams);
+        currentDepartment = getFromOptional(
+                departmentService.updateDepartment(currentDepartment.getId(), currentDepartment),
+                "Failed to update department: " + currentDepartment
+        );
+
         Employee head = currentDepartment.getHead();
         head.setWorkplace(currentDepartment);
         employeeService.updateEmployee(head.getId(), head, null);
 
+        currentTeams.clear();
         unitStack.pop();
         currentDepartment = null;
     }
@@ -197,10 +208,17 @@ public class DatabaseInitializer implements ApplicationRunner {
         if (currentOrganization == null)
             return;
 
+        currentOrganization.setDepartments(currentDepartments);
+        currentOrganization = getFromOptional(
+                organizationService.updateOrganization(currentOrganization.getId(), currentOrganization),
+                "Failed to update organization: " + currentOrganization
+        );
+
         Employee head = currentOrganization.getHead();
         head.setWorkplace(currentOrganization);
         employeeService.updateEmployee(head.getId(), head, null);
 
+        currentDepartments.clear();
         unitStack.pop();
         currentOrganization = null;
     }
@@ -226,5 +244,11 @@ public class DatabaseInitializer implements ApplicationRunner {
         } catch (IOException e) {
             //log the exception
         }
+    }
+
+    private static <T> T getFromOptional(Optional<T> value, String errorMessage) {
+        if (!value.isPresent())
+            throw new RuntimeException(errorMessage);
+        return value.get();
     }
 }
