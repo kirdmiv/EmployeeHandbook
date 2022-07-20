@@ -1,6 +1,7 @@
 package com.ivanov.kirill.EmployeeHandbook.security;
 
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
+import com.ivanov.kirill.EmployeeHandbook.model.UserRole;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,5 +52,13 @@ public class UserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public UserRole getRole() {
+        return employee.getRole();
+    }
+
+    public Long getId() {
+        return employee.getId();
     }
 }

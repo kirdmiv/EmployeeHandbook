@@ -4,11 +4,13 @@ import com.ivanov.kirill.EmployeeHandbook.dto.TeamDto;
 import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Team;
 import com.ivanov.kirill.EmployeeHandbook.service.TeamService;
+import com.ivanov.kirill.EmployeeHandbook.utils.AuthorizeUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +65,12 @@ public class TeamController {
     public ResponseEntity<String> deleteTeamById(
             @RequestParam Long id
     ) {
+        Optional<Team> team = teamService.getTeamById(id);
+        if (!team.isPresent())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
+        if (!AuthorizeUser.checkTeamAccess(team.get(), SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not enough permissions");
+
         if (teamService.deleteTeam(id)) {
             emailService.sendMailMessage(
                     "kirdmiv@gmail.com",
@@ -97,8 +105,14 @@ public class TeamController {
             @PathVariable Long id,
             @RequestBody TeamDto teamRequest
     ) {
-        Team team = modelMapper.map(teamRequest, Team.class);
-        Optional<Team> updatedTeam = teamService.updateTeam(id, team);
+        Optional<Team> team = teamService.getTeamById(id);
+        if (!team.isPresent())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (!AuthorizeUser.checkTeamAccess(team.get(), SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+        Team newTeam = modelMapper.map(teamRequest, Team.class);
+        Optional<Team> updatedTeam = teamService.updateTeam(id, newTeam);
         if (updatedTeam.isPresent()) {
             TeamDto updatedTeamDto = modelMapper.map(updatedTeam.get(), TeamDto.class);
             emailService.sendMailEntity(

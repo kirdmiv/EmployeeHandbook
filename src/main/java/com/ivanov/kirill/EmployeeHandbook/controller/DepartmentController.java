@@ -4,11 +4,13 @@ import com.ivanov.kirill.EmployeeHandbook.dto.DepartmentDto;
 import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Department;
 import com.ivanov.kirill.EmployeeHandbook.service.DepartmentService;
+import com.ivanov.kirill.EmployeeHandbook.utils.AuthorizeUser;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +65,12 @@ public class DepartmentController {
     public ResponseEntity<String> deleteDepartmentById(
             @RequestParam Long id
     ) {
+        Optional<Department> department = departmentService.getDepartmentById(id);
+        if (!department.isPresent())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid id");
+        if (!AuthorizeUser.checkDepartmentAccess(department.get(), SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not enough permissions");
+        
         if (departmentService.deleteDepartment(id)) {
             emailService.sendMailMessage(
                     "kirdmiv@gmail.com",
@@ -97,9 +105,14 @@ public class DepartmentController {
             @PathVariable Long id,
             @RequestBody DepartmentDto departmentRequest
     ) {
-        Department department = modelMapper.map(departmentRequest, Department.class);
-        Optional<Department> updatedDepartment = departmentService.updateDepartment(id, department);
-        if (updatedDepartment.isPresent()) {
+        Optional<Department> department = departmentService.getDepartmentById(id);
+        if (!department.isPresent())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (!AuthorizeUser.checkDepartmentAccess(department.get(), SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+        Department newDepartment = modelMapper.map(departmentRequest, Department.class);
+        Optional<Department> updatedDepartment = departmentService.updateDepartment(id, newDepartment);if (updatedDepartment.isPresent()) {
             DepartmentDto updatedDepartmentDto = modelMapper.map(updatedDepartment.get(), DepartmentDto.class);
             emailService.sendMailEntity(
                     "kirdmiv@gmail.com",
