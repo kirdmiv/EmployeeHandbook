@@ -3,6 +3,7 @@ package com.ivanov.kirill.EmployeeHandbook.service.impl;
 import com.ivanov.kirill.EmployeeHandbook.email.EmailService;
 import com.ivanov.kirill.EmployeeHandbook.model.Employee;
 import com.ivanov.kirill.EmployeeHandbook.model.Unit;
+import com.ivanov.kirill.EmployeeHandbook.model.UserRole;
 import com.ivanov.kirill.EmployeeHandbook.repository.EmployeeRepository;
 import com.ivanov.kirill.EmployeeHandbook.repository.UnitRepository;
 import com.ivanov.kirill.EmployeeHandbook.service.EmployeeService;
@@ -59,6 +60,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             else
                 return Optional.empty();
         }
+
+        if (employee.getRole() == null)
+            employee.setRole(UserRole.ROLE_USER);
+
         employee.setUsername(PasswordGenerator.generate());
         employee.setPassword(passwordEncoder.encode(PasswordGenerator.generate()));
         employee = employeeRepository.save(employee);

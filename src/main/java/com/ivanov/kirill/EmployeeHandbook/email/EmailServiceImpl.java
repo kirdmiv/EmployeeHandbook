@@ -24,7 +24,8 @@ public class EmailServiceImpl implements EmailService {
         message.setTo(to);
         message.setSubject(event);
         message.setText(content);
-        mailSender.send(message);
+        System.out.println(content);
+        //mailSender.send(message);
     }
 
     @Override

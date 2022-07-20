@@ -13,10 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Stack;
+import java.util.*;
 
 @Component
 public class DatabaseInitializer implements ApplicationRunner {
@@ -102,6 +99,13 @@ public class DatabaseInitializer implements ApplicationRunner {
             throw new RuntimeException(e);
         }
         currentEmployee.setWorkplace(unitStack.peek());
+
+        if (values.length > 5 && Objects.equals(values[5], "ADMIN"))
+            currentEmployee.setRole(UserRole.ROLE_ADMIN);
+        else if (values.length > 5 && Objects.equals(values[5], "MOD"))
+            currentEmployee.setRole(UserRole.ROLE_MODERATOR);
+        else
+            currentEmployee.setRole(UserRole.ROLE_USER);
 
         Optional<Employee> addedEmployee = employeeService.addEmployee(currentEmployee, null);
         if (!addedEmployee.isPresent())
