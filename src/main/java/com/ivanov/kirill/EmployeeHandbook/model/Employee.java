@@ -40,4 +40,12 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "workplace_id")
     private Unit workplace;
+
+    @Column(name = "username")
+    @NotBlank
+    private String username;
+
+    @Column(name = "password")
+    @NotBlank
+    private String password;
 }

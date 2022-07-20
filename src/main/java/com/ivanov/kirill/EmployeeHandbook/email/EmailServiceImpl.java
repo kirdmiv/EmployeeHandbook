@@ -39,4 +39,11 @@ public class EmailServiceImpl implements EmailService {
 
         sendMailMessage(to, event, content);
     }
+
+    @Override
+    @Async
+    public void sendLoginInfo(String to, String login, String password) {
+        String message = String.format("login: %s\npassword: %s\n", login, password);
+        sendMailMessage(to, "Your login details", message);
+    }
 }
