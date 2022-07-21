@@ -17,4 +17,6 @@ public interface TeamService {
     Optional<Team> addTeam(Team team);
 
     Optional<Team> updateTeam(Long id, Team team);
+
+    Optional<Team> updateTeamEmployees(Long teamId, List<Long> employeesIds);
 }

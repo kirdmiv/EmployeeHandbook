@@ -124,4 +124,28 @@ public class TeamController {
         }
         return ResponseEntity.badRequest().body(null);
     }
+
+    @PostMapping("/updateEmployees/{id}")
+    public ResponseEntity<TeamDto> updateTeam(
+            @PathVariable Long id,
+            @RequestParam List<Long> employeeIds
+    ) {
+        Optional<Team> team = teamService.getTeamById(id);
+        if (!team.isPresent())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (!AuthorizeUser.checkTeamAccess(team.get(), SecurityContextHolder.getContext().getAuthentication().getPrincipal()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+
+        Optional<Team> updatedTeam = teamService.updateTeamEmployees(id, employeeIds);
+        if (updatedTeam.isPresent()) {
+            TeamDto updatedTeamDto = modelMapper.map(updatedTeam.get(), TeamDto.class);
+            emailService.sendMailEntity(
+                    "kirdmiv@gmail.com",
+                    "Team updated",
+                    updatedTeamDto
+            );
+            return ResponseEntity.ok(updatedTeamDto);
+        }
+        return ResponseEntity.badRequest().body(null);
+    }
 }
