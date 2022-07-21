@@ -68,7 +68,10 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void parseLine(String line) {
-        String[] values = line.split(" ");
+        String[] values = line.split("(?<!\\\\)\\$");
+        for (int i = 0; i < values.length; i++) {
+            values[i] = values[i].replace("\\$", "$");
+        }
         switch (values[0]) {
             case "organization":
                 setUpNewOrganization(values);
