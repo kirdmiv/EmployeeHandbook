@@ -86,8 +86,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (!employeeFromDB.isPresent())
             return Optional.empty();
 
-        employee.setId(employeeFromDB.get().getId());
+        employeeFromDB.get().setName(employee.getName());
+        employeeFromDB.get().setSurname(employee.getSurname());
+        employeeFromDB.get().setBirthday(employee.getBirthday());
+        employeeFromDB.get().setEmail(employee.getEmail());
+        employeeFromDB.get().setWorkplace(employee.getWorkplace());
+        if (unitId != null) {
+            Optional<Unit> workplace = unitRepository.findById(unitId);
+            if (workplace.isPresent())
+                employeeFromDB.get().setWorkplace(workplace.get());
+            else
+                return Optional.empty();
+        }
 
-        return Optional.of(employeeRepository.save(employee));
+        return Optional.of(employeeRepository.save(employeeFromDB.get()));
     }
 }
