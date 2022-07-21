@@ -51,7 +51,7 @@ public class TeamController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/team/{id}")
     public ResponseEntity<TeamDto> findTeamById(
             @PathVariable Long id
     ) {

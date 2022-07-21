@@ -51,7 +51,7 @@ public class OrganizationController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/organization/{id}")
     public ResponseEntity<OrganizationDto> findOrganizationById(
             @PathVariable Long id
     ) {

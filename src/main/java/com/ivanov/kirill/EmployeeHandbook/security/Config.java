@@ -26,6 +26,24 @@ public class Config {
             // other public endpoints of your API may be appended to this array
     };
 
+    private static final String[] ADMIN_LIST = {
+            "/api/**"
+    };
+
+    private static final String[] MODERATOR_LIST = {
+            "/api/**/update/**",
+            "/api/**/delete",
+            "/api/teams//updateEmployees/**"
+    };
+
+    private static final String[] USER_LIST = {
+            "/api/**/find",
+            "/api/employees/employee/**",
+            "/api/teams/team/**",
+            "/api/departments/department/**",
+            "api/organizations/organization/**"
+    };
+
     @Bean
     public UserDetailServiceImpl userDetailService() {
         return new UserDetailServiceImpl();
@@ -41,9 +59,9 @@ public class Config {
         http
                 .authorizeRequests()
                 .antMatchers(AUTH_WHITELIST).permitAll()
-                .antMatchers("/api/**/find").hasAnyRole("ADMIN", "MODERATOR", "USER")
-                .antMatchers("/api/**/update/**").hasAnyRole("ADMIN", "MODERATOR")
-                .antMatchers("/api/**").hasRole("ADMIN")
+                .antMatchers(USER_LIST).hasAnyRole("ADMIN", "MODERATOR", "USER")
+                .antMatchers(MODERATOR_LIST).hasAnyRole("ADMIN", "MODERATOR")
+                .antMatchers(ADMIN_LIST).hasRole("ADMIN")
                 .and()
                 .formLogin().permitAll()
                 .and()

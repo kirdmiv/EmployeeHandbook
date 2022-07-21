@@ -51,7 +51,7 @@ public class EmployeeController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/employee/{id}")
     public ResponseEntity<EmployeeDto> findEmployeeById(
             @PathVariable Long id
     ) {

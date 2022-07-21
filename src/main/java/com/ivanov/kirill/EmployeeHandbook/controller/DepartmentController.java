@@ -51,7 +51,7 @@ public class DepartmentController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/department/{id}")
     public ResponseEntity<DepartmentDto> findDepartmentById(
             @PathVariable Long id
     ) {
