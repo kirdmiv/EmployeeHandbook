@@ -49,8 +49,11 @@
 ### Документация
 После поднятия сервера Swagger: http://localhost:8080/swagger-ui/index.html
 
+### Тесты
+Пока что [тестируются](./src/test/java/com/ivanov/kirill/EmployeeHandbook/EmployeeHandbookApplicationTests.java) только запросы для поиска. Причем для запуска тестов придется вводить логины и пароли. 
+
 #### TODO
 * Error handling
 * Logs
-* Unit тесты
+* Тесты
 * Больше возможностей админа: изменение ролей, регенерация паролей.
