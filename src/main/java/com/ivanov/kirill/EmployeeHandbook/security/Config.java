@@ -33,7 +33,7 @@ public class Config {
     private static final String[] MODERATOR_LIST = {
             "/api/**/update/**",
             "/api/**/delete",
-            "/api/teams//updateEmployees/**"
+            "/api/teams/updateEmployees/**"
     };
 
     private static final String[] USER_LIST = {
@@ -41,7 +41,7 @@ public class Config {
             "/api/employees/employee/**",
             "/api/teams/team/**",
             "/api/departments/department/**",
-            "api/organizations/organization/**"
+            "/api/organizations/organization/**"
     };
 
     @Bean
@@ -71,16 +71,4 @@ public class Config {
 
         return http.build();
     }
-
-//    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring().antMatchers(
-//                "/v2/api-docs",
-//                "/configuration/ui",
-//                "/swagger-resources/**",
-//                "/configuration/security",
-//                "/swagger-ui.html",
-//                "/webjars/**"
-//        );
-//    }
 }
