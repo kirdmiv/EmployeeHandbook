@@ -29,7 +29,6 @@ public class DatabaseInitializer implements ApplicationRunner {
     private Organization currentOrganization = null;
     private Team currentTeam = null;
     private Department currentDepartment = null;
-    private Employee currentEmployee = null;
     private final List<Employee> teamEmployees = new ArrayList<>();
     private final List<Department> currentDepartments = new ArrayList<>();
     private final List<Team> currentTeams = new ArrayList<>();
@@ -91,7 +90,7 @@ public class DatabaseInitializer implements ApplicationRunner {
     }
 
     private void setUpEmployee(String[] values) {
-        currentEmployee = new Employee();
+        Employee currentEmployee = new Employee();
         currentEmployee.setName(values[1]);
         currentEmployee.setSurname(values[2]);
         currentEmployee.setEmail(values[3]);
@@ -112,13 +111,11 @@ public class DatabaseInitializer implements ApplicationRunner {
 
         Optional<Employee> addedEmployee = employeeService.addEmployee(currentEmployee, null);
         if (!addedEmployee.isPresent())
-            throw new RuntimeException("Failed to add employee: " + currentEmployee.toString());
+            throw new RuntimeException("Failed to add employee: " + currentEmployee);
         if (unitStack.peek().getHead() == null)
             unitStack.peek().setHead(addedEmployee.get());
         else
             teamEmployees.add(addedEmployee.get());
-
-        currentEmployee = null;
     }
 
     private void setUpTeam(String[] values) {
