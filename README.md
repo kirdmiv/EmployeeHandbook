@@ -1,22 +1,19 @@
 # Employee Handbook
-[Задание](https://docs.google.com/document/d/1_xDM82GGdrmKR16Tyqx9UgHsuNk4YT7e/edit)
 
-## Set-up
-1. [Скачать PostgreSQL](https://www.postgresql.org/download/). Создать базу данных `empHandbookdb`.
-2. Скачать release jar.
-3. Зарегистрировать приложения для отправки сообщений через gmail. https://myaccount.google.com/security
-4. Запустить: `java -jar EmployeeHandbook.jar`
-    * `--databaseInitializationFile=<Path to file>`. Опционально. Указать путь, из которого будут считанны данные для инициалтзации базы. Пример: [`init.txt`](./init.txt).
-    * `--spring.mail.username=<Email address> --spring.mail.password=<Password>` конфигурируют отправку сообщений на email.
-    * `--spring.datasource.username=<Username> --spring.datasource.password=<Password>` дают доступ к базе данных.
-5. Пример: `java -jar EmployeeHandbook.jar --databaseInitializationFile=init.txt --spring.mail.password=ggg --spring.mail.username=kirdmiv@gmail.com --spring.datasource.username=employee_handbook --spring.datasource.password=123`
+## Setup
+1. [Download PostgreSQL.](https://www.postgresql.org/download/) Create a database with the `empHandbookdb` name.
+2. [Download the jar file.](https://github.com/kirdmiv/EmployeeHandbook/releases/download/v1.0.0-beta.2/EmployeeHandbook.jar)
+3. [Register](https://myaccount.google.com/security) the app in Gmail (to provide notifications). 
+4. To run the application, write `java -jar EmployeeHandbook.jar` in the terminal. Furthermore, one should specify the following flags:
+      * [Mandatory] `--spring.datasource.username=<Username> --spring.datasource.password=<Password>` to provide access to database.
+      * [Optional] `--spring.mail.username=<Email address> --spring.mail.password=<Password>` to set up email notifications.
+      * [Optional] `--databaseInitializationFile=<Path to file>` to import initial data (like [init.txt](./init.txt)).
+5. Example: `java -jar EmployeeHandbook.jar --databaseInitializationFile=init.txt --spring.mail.password=ggg --spring.mail.username=kirdmiv@gmail.com --spring.datasource.username=employee_handbook --spring.datasource.password=123`
 
-### О приложении
-При создании сотрудника генерируется пароль и юзернэйм, которые отправляются ему на почту.
-Можно добавлять/удалять/изменять все, если начальник или админ. Прсматривать могут все.
+### About
 
-### Файл инициализации.
-Можно задавать несколько файлов. Организация задается следующей структурой: 
+### Init file structure
+One can specify multiple files. The structure of a single file is following:
 ```
 .
 ├── organization/
@@ -36,24 +33,24 @@
 │   └── ...
 └── ...
 ```
-Каждая сущность задается строчкой, разделителем в которой участвует `$`. Иначе доллар нужно экранировать: `\$`.
+Every string specifies its entity. The delimiter symbol is `$` (not space). It is possible to escape the dollar sign `\$`.
 
-Примеры строк:
-* Организация: `organization$title$description$headQuarters`
-* Департамент: `department$title$description`
-* Команда: `team$title$description`
-* Сотрудник: `employee$name$surname$email$birthday$role`
+Samples:
+* Organization: `organization$title$description$headQuarters`
+* Department: `department$title$description`
+* Team: `team$title$description`
+* Employee: `employee$name$surname$email$birthday$role`
 
-Если роль `USER` можно не указывать.
+It is not required to set the `USER` role explicitly.
 
-### Документация
-После поднятия сервера Swagger: http://localhost:8080/swagger-ui/index.html
+### Documentation
+If the server is running, one can access auto-generated docs at `http://localhost:8080/swagger-ui/index.html`.
 
-### Тесты
-Пока что [тестируются](./src/test/java/com/ivanov/kirill/EmployeeHandbook/EmployeeHandbookApplicationTests.java) только запросы для поиска. Причем для запуска тестов придется вводить логины и пароли. 
+### Tests
+[Here](./src/test/java/com/ivanov/kirill/EmployeeHandbook/EmployeeHandbookApplicationTests.java)
 
-#### TODO
+####
 * Error handling
 * Logs
-* Тесты
-* Больше возможностей админа: изменение ролей, регенерация паролей.
+* More tests
+* More admin privileges
